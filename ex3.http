@@ -1,0 +1,21 @@
+GET http://localhost:3000/movies
+
+POST http://localhost:3000/movies
+Content-Type: application/json
+
+{
+  "title": "Interstellar",
+  "director": "Christopher Nolan",
+  "year": 2014
+}
+
+PUT http://localhost:3000/movies/1
+Content-Type: application/json
+
+{
+  "title": "The Chronicles of Narnia",
+  "director": "Andrew Adamson",
+  "year": 2005
+}
+
+DELETE http://localhost:3000/movies/1
