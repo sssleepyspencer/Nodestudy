@@ -1,0 +1,25 @@
+GET http://localhost:3008/movies
+
+GET http://localhost:3008/movies/67444f64426a7b9cdf805c8b
+
+
+POST http://localhost:3008/movies
+Content-Type: application/json
+
+{
+  "title": "Guardians of the Galaxy",
+  "director": "James Gunn",
+  "year": 2014,
+  "id": 5
+}
+
+
+PUT http://localhost:3008/movies/67444eee426a7b9cdf805c8a
+Content-Type: application/json
+
+{
+  "title": "Inception-new",
+  "director": "Christopher Nolan",
+  "year": 2010,
+  "id": 1
+}
