@@ -23,3 +23,6 @@ Content-Type: application/json
   "year": 2010,
   "id": 1
 }
+
+
+DELETE http://localhost:3008/movies/674494d2304a328d07e09513
