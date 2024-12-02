@@ -1,0 +1,97 @@
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const Joi = require('joi');
+const app = express();
+app.use(express.json());
+
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('Failed to connect to MongoDB', err));
+
+const movieSchema = new mongoose.Schema({
+  title: { type: String, required: true, minlength: 1 },
+  director: { type: String, required: true, minlength: 1 },
+  year: { type: Number, required: true, min: 1900, max: 2100 },
+  id: { type: Number, required: true }
+});
+
+const Movie = mongoose.model('Movie', movieSchema, 'movies');
+
+const joiMovieSchema = Joi.object({
+  title: Joi.string().min(1).required(),
+  director: Joi.string().min(1).required(),
+  year: Joi.number().integer().min(1900).max(2100).required(),
+});
+
+const createMovie = async (req, res) => {
+  try {
+    const { error } = joiMovieSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
+    const newMovie = new Movie(req.body);
+    const result = await newMovie.save();
+    res.status(201).json(result);
+  } catch (err) {
+    console.error('Error saving new movie:', err);
+    res.status(500).send(err);
+  }
+};
+
+app.get('/movies', async (req, res) => {
+  try {
+    const movies = await Movie.find();
+    console.log('Movies fetched:', movies);
+    res.setHeader('Content-Type', 'application/json');
+    res.json(movies);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err);
+  }
+});
+
+app.get('/movies/:id', async (req, res) => {
+  try {
+    const movie = await Movie.findById(req.params.id);
+    res.json(movie);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err);
+  }
+});
+
+app.post('/movies', createMovie);
+
+app.put('/movies/:id', async (req, res) => {
+  try {
+    const updatedData = req.body;
+    const updatedMovie = await Movie.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+    res.json(updatedMovie);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+app.delete('/movies/:id', async (req, res) => {
+  try {
+    const result = await Movie.findByIdAndDelete(req.params.id);
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err);
+  }
+});
+
+const PORT = process.env.PORT || 3009;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('There was an uncaught error', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
